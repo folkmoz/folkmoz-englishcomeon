@@ -2,8 +2,8 @@
 
 export default async function handler(req, res) {
   // Check for secret to confirm this is a valid request
-  if (req.query.secret !== "#f@lkmoz#" || !req.query.slug) {
-    return res.status(401).json({ message: "Something is invalid"});
+  if (req.query.secret !== "folkmoz" || !req.query.slug) {
+    return res.status(401).json({ message: "Something is invalid" });
   }
 
   try {

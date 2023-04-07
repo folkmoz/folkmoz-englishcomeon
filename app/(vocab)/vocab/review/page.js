@@ -37,3 +37,5 @@ export default async function ReviewPage({}) {
     </>
   );
 }
+
+export const revalidate = 60;
