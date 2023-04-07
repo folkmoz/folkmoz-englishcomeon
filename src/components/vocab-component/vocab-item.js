@@ -18,13 +18,12 @@ export default function VocabItem({ item }) {
   return (
     <Link href={`/vocab/${front}`} onClick={replaceUrl} prefetch={false}>
       <MotionDiv
-        layoutId={`${front}-container`}
         type={"fadeIn"}
         whileHover={{ y: -10 }}
         className="p-4 glass-morphism hover:bg-white md:cursor-pointer"
       >
         <div className="min-h-[50px]">
-          <motion.div layoutId={`${front}-title`} className="font-semibold">
+          <motion.div className="font-semibold">
             {front}
           </motion.div>
         </div>

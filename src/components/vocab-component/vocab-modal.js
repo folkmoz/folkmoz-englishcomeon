@@ -3,6 +3,11 @@ import { motion } from "framer-motion";
 import VocabModalBody from "./vocab-modal-body";
 import { useEffect } from "react";
 
+const variants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+}
+
 export default function VocabModal({ item }) {
   const { _, setSelected } = useSelectedVocab();
   const front = item.properties.Front.title[0].plain_text;
@@ -21,16 +26,14 @@ export default function VocabModal({ item }) {
   }, []);
 
   return (
-    <div className="flex justify-center items-center fixed inset-0">
+    <motion.div  className="flex justify-center items-center fixed inset-0">
       <div className="w-full max-w-lg h-full flex flex-col">
         <div className="flex-1 md:py-28">
           <motion.div
-            transition={{ ease: "easeIn" }}
-            layoutId={`${front}-container`}
-            className="flex flex-col h-full bg-white relative z-50 rounded-[10px] shadow-xl"
+            className="flex flex-col bg-white relative z-50 rounded-[10px] shadow-xl"
           >
             <div className="flex-1 p-4 md:p-8">
-              <div className="flex flex-col h-full">
+              <div className="flex flex-col ">
                 <VocabModalBody item={item} />
               </div>
             </div>
@@ -38,10 +41,9 @@ export default function VocabModal({ item }) {
         </div>
       </div>
       <motion.div
-        exit={{ opacity: 0 }}
         onClick={closeModal}
         className="absolute inset-0 glass-morphism"
       />
-    </div>
+    </motion.div>
   );
 }

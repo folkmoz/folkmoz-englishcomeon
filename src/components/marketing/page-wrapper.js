@@ -12,7 +12,7 @@ export default function PageWrapper({ children }) {
     <MotionDiv className="flex-1 grid sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-6 ">
       {children}
 
-      <AnimatePresence>
+      <AnimatePresence >
         {selected && <VocabModal item={selected} />}
       </AnimatePresence>
     </MotionDiv>
