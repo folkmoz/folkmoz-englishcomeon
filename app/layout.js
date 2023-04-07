@@ -22,7 +22,6 @@ export default function RootLayout({ children }) {
       <body className="min-h-screen">
         <PageFadeIn>{children}</PageFadeIn>
         <TailwindIndicator />
-        <Background />
       </body>
     </html>
   );
