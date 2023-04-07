@@ -3,7 +3,6 @@ import "./globals.css";
 
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { cn } from "@/lib/utils";
-import Background from "@/components/background_canvas";
 import PageFadeIn from "@/components/PageFadeIn";
 
 const fontSans = FontSans({
