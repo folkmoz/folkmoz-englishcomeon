@@ -8,7 +8,7 @@ import ReviewFuncSetting from "@/components/review/review-func-setting";
 const notionApi = async (start) => {
   const resp = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID,
-    start_cursor: start,
+    start_cursor: start || undefined,
     sorts: [
       {
         property: "Front",
