@@ -4,18 +4,36 @@ import ReviewSlide from "@/components/review/review-slider";
 import ReviewDisplaySetting from "@/components/review/review-display-setting";
 import ReviewFuncSetting from "@/components/review/review-func-setting";
 
-async function fetchData() {
-  const data = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID,
+
+const notionApi = async (start) => {
+  const resp = await notion.databases.query({
+    database_id: "8d6ff4d3c0864d738c7b24ec93233842",
+    start_cursor: start,
     sorts: [
       {
         property: "Front",
         direction: "ascending",
       },
     ],
+    page_size: 100,
   });
+  return resp;
+};
 
-  const normalizedData = data.results.map((item) => SplitVariable(item));
+async function fetchData() {
+  let allData = [];
+  let loop = true;
+  let start_cursor = "";
+  while (loop) {
+    const data = await notionApi(start_cursor);
+    if (data.has_more) {
+      start_cursor = data.next_cursor ?? "";
+    } else {
+      loop = false;
+    }
+    allData = [...allData, ...data.results];
+  }
+  const normalizedData = allData.map((item) => SplitVariable(item));
 
   return normalizedData;
 }
