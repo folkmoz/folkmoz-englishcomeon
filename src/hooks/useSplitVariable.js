@@ -1,9 +1,9 @@
-export const SplitVariable = (item: any) => {
+export const SplitVariable = (item) => {
   try {
     const front = item.properties.Front.title[0].plain_text;
     const back = item.properties.Back.rich_text[0].plain_text;
     const partOfSpeech = item.properties["Part of Speech"].multi_select.length
-      ? item.properties["Part of Speech"].multi_select.map((item: any) => ({
+      ? item.properties["Part of Speech"].multi_select.map((item) => ({
           name: item.name,
           color: item.color,
         }))
@@ -25,7 +25,7 @@ export const SplitVariable = (item: any) => {
 
     const examplePhrasesHTML = getPhrasesHTML();
 
-    return { front };
+    return { front, back, partOfSpeech, examplePhrasesHTML };
   } catch (e) {
     return;
   }
