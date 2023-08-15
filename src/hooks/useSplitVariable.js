@@ -27,6 +27,6 @@ export const SplitVariable = (item) => {
 
     return { front, back, partOfSpeech, examplePhrasesHTML };
   } catch (e) {
-    return;
+    return null;
   }
 };
