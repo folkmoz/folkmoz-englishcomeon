@@ -33,9 +33,9 @@ async function fetchData() {
     }
     allData = [...allData, ...data.results];
   }
-  const normalizedData = allData.map((item) => SplitVariable(item)).filter(el => el != null);
+  const normalizedData = allData.map((item) => SplitVariable(item));
 
-  return normalizedData;
+  return normalizedData.filter(el => el !== null);
 }
 export default async function ReviewPage({}) {
   const data = await fetchData();
