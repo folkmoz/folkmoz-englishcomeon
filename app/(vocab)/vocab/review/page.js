@@ -33,9 +33,11 @@ async function fetchData() {
     }
     allData = [...allData, ...data.results];
   }
-  const normalizedData = allData.map((item) => SplitVariable(item));
+  const normalizedData = allData
+    .map((item) => SplitVariable(item))
+    .filter((el) => el !== null);
 
-  return normalizedData.filter(el => el !== null);
+  return normalizedData;
 }
 export default async function ReviewPage({}) {
   const data = await fetchData();
