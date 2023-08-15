@@ -33,7 +33,7 @@ async function fetchData() {
     }
     allData = [...allData, ...data.results];
   }
-  const normalizedData = allData.filter(el => el != null).map((item) => SplitVariable(item));
+  const normalizedData = allData.map((item) => SplitVariable(item)).filter(el => el != null);
 
   return normalizedData;
 }
