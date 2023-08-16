@@ -13,7 +13,7 @@ export const SplitVariable = (item) => {
       const words = item.properties["Example Phrases"].rich_text;
       if (!words.length) return null;
       let phrases = "<pre class='whitespace-pre-wrap'>";
-      words.forEach((phrase: any) => {
+      words.forEach((phrase) => {
         const isUnderline = phrase.annotations.underline;
         phrases += isUnderline
           ? `<u>${phrase.plain_text}</u>`
