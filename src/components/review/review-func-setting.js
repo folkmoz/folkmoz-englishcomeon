@@ -1,34 +1,48 @@
 "use client";
 import { motion } from "framer-motion";
 import { useReviewMode } from "@/hooks/useReviewMode";
-import { cn } from "@/lib/utils";
 
 const list = [
   { name: "Shuffle", value: "shuffle" },
   { name: "Reverse", value: "reverse" },
   { name: "Reset", value: "reset" },
+  { name: "Test", value: "test" },
 ];
 
 export default function ReviewFuncSetting() {
   const { review, setReview } = useReviewMode();
 
   const handleDisplay = (value) => {
-    if (value === "shuffle") {
-      setReview((prev) => {
-        return {
-          ...prev,
-          data: prev.data.sort(() => Math.random() - 0.5),
-        };
-      });
-    } else if (value === "reverse") {
-      setReview((prev) => {
-        return {
-          ...prev,
-          data: prev.data.reverse(),
-        };
-      });
-    } else if (value === "reset") {
-      review.resetFunc();
+    switch (value) {
+      case "shuffle":
+        setReview((prev) => {
+          return {
+            ...prev,
+            data: prev.data.sort(() => Math.random() - 0.5),
+          };
+        });
+        break;
+      case "reverse":
+        setReview((prev) => {
+          return {
+            ...prev,
+            data: prev.data.reverse(),
+          };
+        });
+        break;
+      case "reset":
+        review.resetFunc();
+        break;
+      case "test":
+        setReview((prev) => {
+          return {
+            ...prev,
+            mode: "test",
+          };
+        });
+        break;
+      default:
+        break;
     }
   };
 

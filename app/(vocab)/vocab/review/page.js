@@ -1,12 +1,12 @@
 import notion from "@/lib/notion";
-import { SplitVariable } from "@/hooks/useSplitVariable";
+import {SplitVariable} from "@/hooks/useSplitVariable";
 import ReviewSlide from "@/components/review/review-slider";
 import ReviewDisplaySetting from "@/components/review/review-display-setting";
 import ReviewFuncSetting from "@/components/review/review-func-setting";
 
 
 const notionApi = async (start) => {
-  const resp = await notion.databases.query({
+  return await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID,
     start_cursor: start || undefined,
     sorts: [
@@ -15,9 +15,13 @@ const notionApi = async (start) => {
         direction: "ascending",
       },
     ],
-    page_size: 100,
+    filter: {
+        property: "Front",
+        rich_text: {
+            is_not_empty: true,
+        }
+    }
   });
-  return resp;
 };
 
 async function fetchData() {
@@ -25,17 +29,16 @@ async function fetchData() {
   let loop = true;
   let start_cursor = "";
   while (loop) {
-    const data = await notionApi(start_cursor);
-    if (data.has_more) {
-      start_cursor = data.next_cursor ?? "";
+    const response = await notionApi(start_cursor);
+    if (response.has_more) {
+      start_cursor = response.next_cursor ?? "";
     } else {
       loop = false;
     }
-    allData = [...allData, ...data.results];
+    allData = [...allData, ...response.results];
   }
   const normalizedData = allData
     .map((item) => SplitVariable(item))
-    .filter((el) => el !== null);
 
   return normalizedData;
 }

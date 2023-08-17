@@ -1,7 +1,6 @@
 "use client";
-import { AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
-import { motion, wrap } from "framer-motion";
+import { AnimatePresence, motion, wrap } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import {
   BackPart,
   ExamplePhrasesPart,
@@ -9,6 +8,7 @@ import {
   PartOfSpeechPart,
 } from "../vocab-component/part-of-voacb";
 import { useReviewMode } from "@/hooks/useReviewMode";
+import { cn } from "@/lib/utils";
 
 export default function ReviewSlide({ data: RawData }) {
   const [data, setData] = useState(RawData);
@@ -18,6 +18,19 @@ export default function ReviewSlide({ data: RawData }) {
   const paginate = (newDirection) => {
     setPage([page + newDirection, newDirection]);
   };
+
+  const moveState = (e) => {
+    if (e.key === "ArrowRight") paginate(1);
+    if (e.key === "ArrowLeft") paginate(-1);
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", moveState);
+
+    return () => {
+      window.removeEventListener("keydown", moveState);
+    };
+  }, [page]);
 
   const genPrev = () => {
     if (page === 0) {
@@ -83,7 +96,7 @@ export default function ReviewSlide({ data: RawData }) {
         <SlideItem {...genProps(index)} key={index} />
         <SlideItem {...genProps(next)} key={next} />
 
-        <div className="absolute bottom-4 left-0 right-0 gap-8 flex justify-center text-gray-300">
+        <div className="absolute bottom-4 left-0 right-0 gap-8 flex justify-center text-gray-300 z-10">
           <motion.div
             whileHover={{ x: -5 }}
             whileTap={{ scale: 0.9 }}
@@ -142,7 +155,12 @@ const SlideItem = ({
 }) => {
   const { review, setReview } = useReviewMode();
 
+  const ranNum = useMemo(() => {
+    return Math.random() >= 0.5 ? 1 : 0;
+  }, []);
   const scale = pos === "center" ? 1 : 0.8;
+  const isOne = ranNum === 1;
+  const isTestMode = review.mode === "test";
 
   const variants = {
     left: {
@@ -183,33 +201,68 @@ const SlideItem = ({
       };
     },
   };
+
+  const c = {
+    hasBack: review.display.includes("back"),
+    hasPhrase: review.display.includes("phrase"),
+    hasFront: review.display.includes("front"),
+    isCenter: pos === "center",
+  };
+
+  const genProps = (where) => {
+    if (where === "back") {
+      if (isTestMode && !isOne) {
+        return front;
+      } else if (isTestMode && isOne) {
+        return back;
+      }
+      return back;
+    } else if (where === "front") {
+      if (isTestMode && isOne) {
+        return front;
+      } else if (isTestMode && !isOne) {
+        return back;
+      }
+      return front;
+    }
+  };
+
   return (
     <>
       <motion.div
-        layout
         className="absolute w-full bg-white rounded-lg shadow-lg flex flex-col items-center pt-8 pb-6 px-4"
+        layout="preserve-aspect"
         custom={direction}
         variants={variants}
         initial="enter"
         animate={`${pos}`}
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={1}
         exit="exit"
         transition={{
           x: { type: "spring", stiffness: 300, damping: 30 },
-          height: { duration: 0.2, type: "tween" },
+          height: { duration: 1, type: "tween" },
           opacity: { duration: 0.2 },
         }}
       >
-        <div className="flex flex-col bg-white">
-          {review.display.includes("front") && <FrontPart front={front} />}
-          {review.display.includes("back") && pos === "center" && (
+        <div
+          className={cn("flex flex-col bg-white", {
+            "w-full":
+              review.display.includes("phrase") &&
+              pos === "center" &&
+              examplePhrasesHTML,
+          })}
+        >
+          {c.hasFront && <FrontPart front={genProps("front")} />}
+          {c.hasBack && c.isCenter && (
             <div className="mb-4">
-              <BackPart back={back} />
+              <BackPart back={genProps("back")} />
             </div>
           )}
-          {review.display.includes("phrase") && pos === "center" && (
+          {c.hasBack && !c.isCenter && review.display.length === 1 && (
+            <div className="mb-4">
+              <BackPart back={genProps("back")} />
+            </div>
+          )}
+          {c.hasPhrase && c.isCenter && (
             <ExamplePhrasesPart phrase={examplePhrasesHTML} />
           )}
 
