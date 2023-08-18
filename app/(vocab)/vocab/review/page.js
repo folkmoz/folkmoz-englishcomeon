@@ -1,12 +1,11 @@
-import notion from "@/lib/notion";
-import { SplitVariable } from "@/hooks/useSplitVariable";
 import ReviewSlide from "@/components/review/review-slider";
 import ReviewDisplaySetting from "@/components/review/review-display-setting";
 import ReviewFuncSetting from "@/components/review/review-func-setting";
-import { headers } from "next/headers";
+import {headers} from "next/headers";
 import Stacks from "@/components/review/mobile/stacks";
+import {getAllVocab} from "@/lib/api";
 
-const notionApi = async (start) => {
+/*const notionApi = async (start) => {
   return await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID,
     start_cursor: start || undefined,
@@ -41,10 +40,10 @@ async function fetchData() {
   const normalizedData = allData.map((item) => SplitVariable(item));
 
   return normalizedData;
-}
+}*/
 
 export default async function ReviewPage({}) {
-  const data = await fetchData();
+  const data = await getAllVocab();
   const headersList = headers();
   const userAgent = headersList.get("user-agent");
 
@@ -77,4 +76,4 @@ export default async function ReviewPage({}) {
   );
 }
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
