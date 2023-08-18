@@ -9,6 +9,14 @@ import {
 } from "../vocab-component/part-of-voacb";
 import { useReviewMode } from "@/hooks/useReviewMode";
 import { cn } from "@/lib/utils";
+import { Antic_Didone } from "@next/font/google";
+
+const font = Antic_Didone({
+  display: "swap",
+  weight: ["400"],
+  preload: true,
+  subsets: ["latin"],
+});
 
 export default function ReviewSlide({ data: RawData }) {
   const [data, setData] = useState(RawData);
@@ -23,14 +31,6 @@ export default function ReviewSlide({ data: RawData }) {
     if (e.key === "ArrowRight") paginate(1);
     if (e.key === "ArrowLeft") paginate(-1);
   };
-
-  useEffect(() => {
-    window.addEventListener("keydown", moveState);
-
-    return () => {
-      window.removeEventListener("keydown", moveState);
-    };
-  }, [page]);
 
   const genPrev = () => {
     if (page === 0) {
@@ -53,7 +53,7 @@ export default function ReviewSlide({ data: RawData }) {
     return {
       direction,
       pos: i === index ? "center" : i === genPrev() ? "left" : "right",
-      ...data[i],
+      ...review.data[i],
     };
   };
 
@@ -69,12 +69,6 @@ export default function ReviewSlide({ data: RawData }) {
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, []);
-
-  useEffect(() => {
     setReview((prev) => {
       return {
         ...prev,
@@ -83,21 +77,45 @@ export default function ReviewSlide({ data: RawData }) {
         data,
       };
     });
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, []);
 
   useEffect(() => {
-    setData(review.data);
+    setPage([0, 0]);
   }, [review.data]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", moveState);
+
+    return () => {
+      window.removeEventListener("keydown", moveState);
+    };
+  }, [page]);
 
   return (
     <>
-      <AnimatePresence initial={false} custom={direction}>
-        <SlideItem {...genProps(prev)} key={prev} />
-        <SlideItem {...genProps(index)} key={index} />
-        <SlideItem {...genProps(next)} key={next} />
+      <div className={cn("ml-auto mb-4 max-w-xs", font.className)}>
+        <div className="ml-8 font-semibold">
+          <span className={"text-2xl"}>
+            {page + 1 > data.length
+              ? page + 1 - data.length * Math.floor(page / data.length)
+              : page + 1}
+          </span>
+          /<i className={"opacity-60"}>{data.length}</i>
+        </div>
+      </div>
+
+      <div className={"w-full max-w-lg  relative h-full mx-auto"}>
+        <AnimatePresence initial={false} custom={direction}>
+          <SlideItem {...genProps(prev)} key={prev} />
+          <SlideItem {...genProps(index)} key={index} />
+          <SlideItem {...genProps(next)} key={next} />
+        </AnimatePresence>
 
         <div className="absolute bottom-4 left-0 right-0 gap-8 flex justify-center text-gray-300 z-10">
-          <motion.div
+          <motion.button
             whileHover={{ x: -5 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => paginate(-1)}
@@ -117,8 +135,8 @@ export default function ReviewSlide({ data: RawData }) {
               <line x1="19" y1="12" x2="5" y2="12"></line>
               <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-          </motion.div>
-          <motion.div
+          </motion.button>
+          <motion.button
             whileHover={{ x: 5 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => paginate(1)}
@@ -138,9 +156,9 @@ export default function ReviewSlide({ data: RawData }) {
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
             </svg>
-          </motion.div>
+          </motion.button>
         </div>
-      </AnimatePresence>
+      </div>
     </>
   );
 }

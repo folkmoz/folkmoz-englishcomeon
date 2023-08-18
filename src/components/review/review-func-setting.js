@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { useReviewMode } from "@/hooks/useReviewMode";
+import { cn } from "@/lib/utils";
 
 const list = [
   { name: "Shuffle", value: "shuffle" },
@@ -15,14 +16,18 @@ export default function ReviewFuncSetting() {
   const handleDisplay = (value) => {
     switch (value) {
       case "shuffle":
-        setReview((prev) => {
-          return {
-            ...prev,
-            data: prev.data.sort(() => Math.random() - 0.5),
-          };
-        });
+        (function shuffle() {
+          const _array = review.data.sort(() => Math.random() - 0.5);
+          setReview((prev) => {
+            return {
+              ...prev,
+              data: [..._array],
+            };
+          });
+        })();
         break;
       case "reverse":
+        // const data = review.data.reverse();
         setReview((prev) => {
           return {
             ...prev,
@@ -37,7 +42,7 @@ export default function ReviewFuncSetting() {
         setReview((prev) => {
           return {
             ...prev,
-            mode: "test",
+            mode: prev.mode === "test" ? "default" : "test",
           };
         });
         break;
@@ -73,16 +78,20 @@ export default function ReviewFuncSetting() {
         <motion.div className="glass-morphism p-2 rounded-md border border-slate-200">
           <motion.div className="rounded-md overflow-hidden flex">
             {list.map((item) => (
-              <motion.div
+              <motion.button
                 whileTap={{ scale: 0.98 }}
                 key={item.value}
-                className={
-                  "md:cursor-pointer p-4 hover:bg-gray-700 hover:text-white"
-                }
+                className={cn(
+                  "md:cursor-pointer p-4 hover:bg-gray-700 hover:text-white",
+                  {
+                    "bg-gray-700 text-white":
+                      review.mode === "test" && item.value === "test",
+                  },
+                )}
                 onClick={() => handleDisplay(item.value)}
               >
                 <div className="text-center  text-lg">{item.name}</div>
-              </motion.div>
+              </motion.button>
             ))}
           </motion.div>
         </motion.div>

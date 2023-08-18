@@ -13,7 +13,7 @@ const list = [
     value: "back",
   },
   {
-    name: "Pharase",
+    name: "Phrase",
     value: "phrase",
   },
 ];
@@ -62,21 +62,21 @@ export default function ReviewDisplaySetting() {
         <motion.div className="glass-morphism p-2 rounded-md border border-slate-200">
           <motion.div className="rounded-md overflow-hidden flex">
             {list.map((item) => (
-              <motion.div
+              <motion.button
                 whileTap={{ scale: 0.98 }}
                 key={item.value}
                 className={cn("md:cursor-pointer p-4", {
                   "bg-green-300 text-green-700": review.display.includes(
-                    item.value
+                    item.value,
                   ),
                   "bg-gray-100 text-gray-400": !review.display.includes(
-                    item.value
+                    item.value,
                   ),
                 })}
                 onClick={() => handleDisplay(item.value)}
               >
                 <div className="text-center  text-lg">{item.name}</div>
-              </motion.div>
+              </motion.button>
             ))}
           </motion.div>
         </motion.div>
