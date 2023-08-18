@@ -8,6 +8,7 @@ const initialState = {
     mode: "default",
     display: ["front"],
     resetFunc: () => {},
+    init: () => {},
   },
 };
 const { useGlobalState } = createGlobalState(initialState);

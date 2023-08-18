@@ -3,6 +3,8 @@ import { SplitVariable } from "@/hooks/useSplitVariable";
 import ReviewSlide from "@/components/review/review-slider";
 import ReviewDisplaySetting from "@/components/review/review-display-setting";
 import ReviewFuncSetting from "@/components/review/review-func-setting";
+import { headers } from "next/headers";
+import Stacks from "@/components/review/mobile/stacks";
 
 const notionApi = async (start) => {
   return await notion.databases.query({
@@ -43,17 +45,32 @@ async function fetchData() {
 
 export default async function ReviewPage({}) {
   const data = await fetchData();
+  const headersList = headers();
+  const userAgent = headersList.get("user-agent");
+
+  const isMobile = Boolean(
+    userAgent.match(
+      /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i,
+    ),
+  );
+
   return (
     <>
       <section className="container flex pt-6 pb-8 md:pt-10 md:pb-12 lg:pt-16">
         <div className="grid w-full h-full py-8 relative gap-8">
-          <div className="mx-auto w-full min-h-[300px]">
-            <ReviewSlide data={data} />
-          </div>
-          <div className="flex justify-center gap-6 mt-6">
-            <ReviewDisplaySetting />
-            <ReviewFuncSetting />
-          </div>
+          {isMobile ? (
+            <Stacks data={data} />
+          ) : (
+            <>
+              <div className="mx-auto w-full min-h-[300px]">
+                <ReviewSlide data={data} />
+              </div>
+              <div className="flex justify-center gap-6 mt-6">
+                <ReviewDisplaySetting />
+                <ReviewFuncSetting />
+              </div>
+            </>
+          )}
         </div>
       </section>
     </>
