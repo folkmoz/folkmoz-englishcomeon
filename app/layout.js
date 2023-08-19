@@ -3,7 +3,6 @@ import "./globals.css";
 
 import { TailwindIndicator } from "@/components/tailwind-indicator";
 import { cn } from "@/lib/utils";
-import PageFadeIn from "@/components/PageFadeIn";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -19,7 +18,7 @@ export default function RootLayout({ children }) {
     >
       <head />
       <body className="min-h-screen">
-        <PageFadeIn>{children}</PageFadeIn>
+        {children}
         <TailwindIndicator />
       </body>
     </html>

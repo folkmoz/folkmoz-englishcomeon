@@ -10,6 +10,7 @@ export default function MainNav({ items }) {
         <nav className="hidden md:flex">
           {items.map((item, index) => (
             <Link
+              prefetch
               key={index}
               href={item.href}
               className="items-center space-x-2"
