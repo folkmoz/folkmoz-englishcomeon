@@ -1,6 +1,6 @@
 "use client";
 import { AnimatePresence, motion, wrap } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   BackPart,
   ExamplePhrasesPart,
@@ -27,11 +27,6 @@ export default function ReviewSlide({ data: RawData }) {
     setPage([page + newDirection, newDirection]);
   };
 
-  const moveState = (e) => {
-    if (e.key === "ArrowRight") paginate(1);
-    if (e.key === "ArrowLeft") paginate(-1);
-  };
-
   const genPrev = () => {
     if (page === 0) {
       return data.length - 1;
@@ -54,6 +49,7 @@ export default function ReviewSlide({ data: RawData }) {
       direction,
       pos: i === index ? "center" : i === genPrev() ? "left" : "right",
       ...review.data[i],
+      paginate,
     };
   };
 
@@ -85,14 +81,6 @@ export default function ReviewSlide({ data: RawData }) {
   useEffect(() => {
     setPage([0, 0]);
   }, [review.data]);
-
-  useEffect(() => {
-    window.addEventListener("keydown", moveState);
-
-    return () => {
-      window.removeEventListener("keydown", moveState);
-    };
-  }, [page]);
 
   return (
     <>
@@ -170,8 +158,10 @@ const SlideItem = ({
   examplePhrasesHTML,
   direction,
   pos,
+  paginate,
 }) => {
   const { review, setReview } = useReviewMode();
+  const [isWrong, setIsWrong] = useState(false);
 
   const ranNum = useMemo(() => {
     return Math.random() >= 0.5 ? 1 : 0;
@@ -179,6 +169,8 @@ const SlideItem = ({
   const scale = pos === "center" ? 1 : 0.8;
   const isOne = ranNum === 1;
   const isTestMode = review.mode === "test";
+
+  const inputRef = useRef();
 
   const variants = {
     left: {
@@ -227,6 +219,48 @@ const SlideItem = ({
     isCenter: pos === "center",
   };
 
+  const handleDisplay = (value) => {
+    if (review.display.length === 1 && review.display.includes(value)) {
+      return;
+    } else {
+      setReview((prev) => {
+        return {
+          ...prev,
+          display: prev.display.includes(value)
+            ? prev.display.filter((item) => item !== value)
+            : [...prev.display, value],
+        };
+      });
+    }
+  };
+
+  const moveState = (e) => {
+    const isInput = e.target.tagName === "INPUT";
+    const isNumber = !isNaN(e.key);
+    const hasValue = e.target.value;
+    if (isInput && hasValue) return;
+    if (isInput && isNumber) return;
+    switch (e.key) {
+      case "ArrowRight":
+        paginate(1);
+        break;
+      case "ArrowLeft":
+        paginate(-1);
+        break;
+      case "1":
+        handleDisplay("front");
+        break;
+      case "2":
+        handleDisplay("back");
+        break;
+      case "3":
+        handleDisplay("phrase");
+        break;
+      default:
+        break;
+    }
+  };
+
   const genProps = (where) => {
     if (where === "back") {
       if (isTestMode && !isOne) {
@@ -244,6 +278,34 @@ const SlideItem = ({
       return front;
     }
   };
+
+  const checkAnswer = (e) => {
+    const answer = e.target.value.toLowerCase().trim();
+    if (e.key === "Enter") {
+      if (answer === front.toLowerCase().trim()) {
+        paginate(1);
+        e.target.value = "";
+      } else {
+        setIsWrong(true);
+        setTimeout(() => {
+          setIsWrong(false);
+        }, 1000);
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  });
+
+  useEffect(() => {
+    window.addEventListener("keydown", moveState);
+    return () => {
+      window.removeEventListener("keydown", moveState);
+    };
+  }, [c.isCenter, review.display]);
 
   return (
     <>
@@ -280,6 +342,25 @@ const SlideItem = ({
               <BackPart back={genProps("back")} />
             </div>
           )}
+          {c.hasBack &&
+            c.isCenter &&
+            review.display.length === 1 &&
+            review.mode !== "test" && (
+              <>
+                <div className="mb-4">
+                  <input
+                    ref={inputRef}
+                    onKeyDown={checkAnswer}
+                    className={cn(
+                      "w-full outline-none border rounded px-2 py-1 text-sky-800",
+                      {
+                        "border-red-500 animate-shake-x": isWrong,
+                      },
+                    )}
+                  />
+                </div>
+              </>
+            )}
           {c.hasPhrase && c.isCenter && (
             <ExamplePhrasesPart phrase={examplePhrasesHTML} />
           )}
