@@ -301,7 +301,9 @@ const SlideItem = ({
   });
 
   useEffect(() => {
-    window.addEventListener("keydown", moveState);
+    if (c.isCenter) {
+      window.addEventListener("keydown", moveState);
+    }
     return () => {
       window.removeEventListener("keydown", moveState);
     };
