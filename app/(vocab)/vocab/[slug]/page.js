@@ -19,6 +19,7 @@ export default async function VocabPage({ params }) {
       property: "Front",
       title: {
         equals: decodeURI(slug),
+        is_not_empty: true,
       },
     },
   });
