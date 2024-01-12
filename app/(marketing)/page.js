@@ -3,17 +3,10 @@ import VocabItem from "@/components/vocab-component/vocab-item";
 import PageWrapper from "@/components/marketing/page-wrapper";
 
 async function fetchData() {
-    const data = await notion.databases.query({
+    return await notion.databases.query({
         database_id: process.env.NOTION_DATABASE_ID,
         filter: {
             and: [
-                {
-                    timestamp: "created_time",
-                    created_time: {
-                        past_month: {}
-                    }
-                }
-                ,
                 {
                     property: "Front",
                     rich_text: {
@@ -23,11 +16,10 @@ async function fetchData() {
             ]
         }
     });
-    return data;
 }
 
 export default async function IndexPage() {
-    const data = await fetchData();
+    const data = await fetchData()
 
     return (
         <>
