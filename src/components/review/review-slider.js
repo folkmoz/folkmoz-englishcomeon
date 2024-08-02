@@ -19,7 +19,7 @@ const font = Antic_Didone({
 });
 
 export default function ReviewSlide({ data: RawData }) {
-  const [data, setData] = useState(RawData);
+  const [data] = useState(RawData);
   const [[page, direction], setPage] = useState([0, 0]);
   const { review, setReview } = useReviewMode();
   const index = wrap(0, data.length, page);
@@ -82,14 +82,20 @@ export default function ReviewSlide({ data: RawData }) {
     setPage([0, 0]);
   }, [review.data]);
 
+  const currentShowCardIndex = useMemo(() => {
+    if (page < 0) {
+      return data.length - Math.abs(page);
+    }
+
+    return page % data.length;
+  }, [page, data.length]);
+
   return (
     <>
-      <div className={cn("ml-auto mb-4 max-w-xs", font.className)}>
+      <div className={cn("ml-auto mb-4 max-w-xs ", font.className)}>
         <div className="ml-8 font-semibold">
           <span className={"text-2xl"}>
-            {page + 1 > data.length
-              ? page + 1 - data.length * Math.floor(page / data.length)
-              : page + 1}
+            {currentShowCardIndex + 1}
           </span>
           /<i className={"opacity-60"}>{data.length}</i>
         </div>
