@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "vocab/review": {
+      "maxDuration": 30
+    },
+    "api/revalidate": {
+      "maxDuration": 30
+    }
+  }
+}
