@@ -3,7 +3,7 @@
     "app/**/*": {
       "maxDuration": 30
     },
-    "api/revalidate.js": {
+    "api/**/*": {
       "maxDuration": 30
     }
   }
