@@ -1,9 +1,9 @@
 {
   "functions": {
-    "vocab/review": {
+    "app/**/*": {
       "maxDuration": 30
     },
-    "api/revalidate": {
+    "api/revalidate.js": {
       "maxDuration": 30
     }
   }
