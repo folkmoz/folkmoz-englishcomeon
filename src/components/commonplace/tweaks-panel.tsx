@@ -12,6 +12,7 @@ interface TweaksPanelProps {
   setTweaks: Dispatch<SetStateAction<CommonplaceTweaks>>;
   visible: boolean;
   onClose: () => void;
+  isAdmin?: boolean;
 }
 
 function Group<V extends string | number>({
@@ -48,6 +49,7 @@ export function TweaksPanel({
   setTweaks,
   visible,
   onClose,
+  isAdmin = false,
 }: TweaksPanelProps) {
   if (!visible) return null;
   const set =
@@ -105,6 +107,21 @@ export function TweaksPanel({
           ]}
           onChange={set("dailyQuota")}
         />
+        {isAdmin && (
+          <Group
+            label="Audio Voice (admin)"
+            value={tweaks.ttsVoice ?? "Kore"}
+            options={[
+              { v: "Kore", l: "Kore · F firm" },
+              { v: "Leda", l: "Leda · F youth" },
+              { v: "Aoede", l: "Aoede · F breezy" },
+              { v: "Zephyr", l: "Zephyr · F bright" },
+              { v: "Puck", l: "Puck · M upbeat" },
+              { v: "Charon", l: "Charon · M info" },
+            ]}
+            onChange={set("ttsVoice")}
+          />
+        )}
       </div>
     </div>
   );

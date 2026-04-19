@@ -5,6 +5,8 @@ import {
   SplitVariableResult,
 } from "@/types";
 import { AudioAction, createWord, updateWord, WordInput } from "@/lib/actions";
+import { useTweaks } from "@/components/commonplace/shell";
+import { AudioPreview } from "./audio-preview";
 
 type GenKind = "etymology" | "phrase";
 type AudioSlot = "front" | "phrase";
@@ -37,11 +39,11 @@ async function streamGenerate(
   }
 }
 
-async function generateTTS(text: string): Promise<string> {
+async function generateTTS(text: string, voice: string): Promise<string> {
   const res = await fetch("/api/admin/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, voice }),
   });
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || "TTS failed");
@@ -85,6 +87,8 @@ function base64ToBlobUrl(b64: string): string {
 }
 
 export function WordModal({ open, word, onClose, onSaved }: Props) {
+  const [tweaks] = useTweaks();
+  const voice = tweaks.ttsVoice ?? "Kore";
   const [form, setForm] = useState<WordInput>(emptyForm());
   const [audioFront, setAudioFront] = useState<AudioSlotState>({
     action: "keep",
@@ -208,6 +212,18 @@ export function WordModal({ open, word, onClose, onSaved }: Props) {
     setGenerating(null);
   };
 
+  const runAudioGen = async (slot: AudioSlot): Promise<boolean> => {
+    const text = slot === "front" ? form.front.trim() : form.phrase.trim();
+    if (!text) return false;
+    const b64 = await generateTTS(text, voice);
+    const url = base64ToBlobUrl(b64);
+    setAudio(slot)((prev) => {
+      if (prev.url) URL.revokeObjectURL(prev.url);
+      return { action: "set", base64: b64, url };
+    });
+    return true;
+  };
+
   const generateAudio = async (slot: AudioSlot) => {
     const text = slot === "front" ? form.front.trim() : form.phrase.trim();
     if (!text) {
@@ -221,12 +237,25 @@ export function WordModal({ open, word, onClose, onSaved }: Props) {
     setError(null);
     setTtsBusy(slot);
     try {
-      const b64 = await generateTTS(text);
-      const url = base64ToBlobUrl(b64);
-      setAudio(slot)((prev) => {
-        if (prev.url) URL.revokeObjectURL(prev.url);
-        return { action: "set", base64: b64, url };
-      });
+      await runAudioGen(slot);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "TTS failed");
+    } finally {
+      setTtsBusy(null);
+    }
+  };
+
+  const generateBothAudio = async () => {
+    if (!form.front.trim()) {
+      setError("Enter the front word first.");
+      return;
+    }
+    setError(null);
+    setTtsBusy("front");
+    try {
+      const tasks: Promise<boolean>[] = [runAudioGen("front")];
+      if (form.phrase.trim()) tasks.push(runAudioGen("phrase"));
+      await Promise.all(tasks);
     } catch (err) {
       setError(err instanceof Error ? err.message : "TTS failed");
     } finally {
@@ -278,7 +307,7 @@ export function WordModal({ open, word, onClose, onSaved }: Props) {
         </button>
         {previewUrl && (
           <>
-            <audio controls src={previewUrl} className="audio-preview" />
+            <AudioPreview src={previewUrl} />
             <button
               type="button"
               className="audio-link"
@@ -290,7 +319,7 @@ export function WordModal({ open, word, onClose, onSaved }: Props) {
         )}
         {!previewUrl && existingUrl && !isCleared && (
           <>
-            <audio controls src={existingUrl} className="audio-preview" />
+            <AudioPreview src={existingUrl} />
             <button
               type="button"
               className="audio-link danger"
@@ -325,15 +354,29 @@ export function WordModal({ open, word, onClose, onSaved }: Props) {
     >
       <form className="modal" onSubmit={submit}>
         <div className="modal-head">
-          <div className="eyebrow">{word ? "Edit Entry" : "New Entry"}</div>
-          <button
-            type="button"
-            className="modal-close"
-            onClick={onClose}
-            aria-label="Close"
-          >
-            ×
-          </button>
+          <div className="eyebrow">
+            {word ? "Edit Entry" : "New Entry"}
+            <span className="modal-head-voice"> · voice: {voice}</span>
+          </div>
+          <div className="modal-head-actions">
+            <button
+              type="button"
+              className="gen-btn"
+              onClick={generateBothAudio}
+              disabled={ttsBusy !== null || pending}
+              title="Generate audio for front + phrase"
+            >
+              {ttsBusy ? "…" : "✦ Audio for both"}
+            </button>
+            <button
+              type="button"
+              className="modal-close"
+              onClick={onClose}
+              aria-label="Close"
+            >
+              ×
+            </button>
+          </div>
         </div>
         <div className="modal-body">
           <div className="field">

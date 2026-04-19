@@ -1,10 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  CommonplaceSession,
-  MasteryState,
-  SplitVariableResult,
-} from "@/types";
+import { CommonplaceSession, MasteryState, SplitVariableResult } from "@/types";
 import { FlashFace } from "./flash-face";
 import { Icon } from "./icons";
 import { ProgressRing } from "./progress-ring";
@@ -24,17 +20,17 @@ export function ReviewClient({ data }: Props) {
   const [tweaks] = useTweaks();
   const [mastery, setMastery] = useStored<Record<string, MasteryState>>(
     "mastery_v1",
-    {},
+    {}
   );
   const [order, setOrder] = useStored<string[]>(
     "review_order",
-    data.map((d) => d.id),
+    data.map((d) => d.id)
   );
   const [reverse, setReverse] = useStored<boolean>("review_reverse", false);
   const [idx, setIdx] = useStored<number>("review_idx", 0);
   const [sessionState, setSessionState] = useStored<CommonplaceSession>(
     "session_v1",
-    { touched: [], lastIdx: 0, date: null },
+    { touched: [], lastIdx: 0, date: null }
   );
 
   const [face, setFace] = useState<FaceState>("front");
@@ -54,7 +50,9 @@ export function ReviewClient({ data }: Props) {
     if (!hydrated) return;
     const currentIds = new Set(data.map((d) => d.id));
     const allFromOrder = new Set(order);
-    const missing = data.filter((d) => !allFromOrder.has(d.id)).map((d) => d.id);
+    const missing = data
+      .filter((d) => !allFromOrder.has(d.id))
+      .map((d) => d.id);
     const existing = order.filter((id) => currentIds.has(id));
     if (missing.length || existing.length !== order.length) {
       setOrder([...existing, ...missing]);
@@ -88,7 +86,7 @@ export function ReviewClient({ data }: Props) {
   const safeIdx = Math.min(Math.max(idx, 0), Math.max(order.length - 1, 0));
   const word = useMemo(
     () => data.find((d) => d.id === order[safeIdx]) || data[0],
-    [order, safeIdx, data],
+    [order, safeIdx, data]
   );
 
   const markTouched = useCallback(
@@ -106,7 +104,7 @@ export function ReviewClient({ data }: Props) {
         return { ...prev, lastIdx: safeIdx, date: today };
       });
     },
-    [safeIdx, setSessionState],
+    [safeIdx, setSessionState]
   );
 
   useEffect(() => {
@@ -133,14 +131,12 @@ export function ReviewClient({ data }: Props) {
 
   const next = useCallback(
     () =>
-      animate("next", () =>
-        setIdx((i) => Math.min(i + 1, order.length - 1)),
-      ),
-    [animate, order.length, setIdx],
+      animate("next", () => setIdx((i) => Math.min(i + 1, order.length - 1))),
+    [animate, order.length, setIdx]
   );
   const prev = useCallback(
     () => animate("prev", () => setIdx((i) => Math.max(i - 1, 0))),
-    [animate, setIdx],
+    [animate, setIdx]
   );
 
   useEffect(() => {
@@ -216,8 +212,7 @@ export function ReviewClient({ data }: Props) {
               fontStyle: "italic",
               fontSize: 32,
               color: "var(--ink-3)",
-            }}
-          >
+            }}>
             No entries recorded yet.
           </div>
         </div>
@@ -267,15 +262,14 @@ export function ReviewClient({ data }: Props) {
                       sessionState.touched[sessionState.touched.length - 1];
                     const i = order.indexOf(last);
                     if (i >= 0) setIdx(i);
-                  }}
-                >
+                  }}>
                   Last word ↻
                 </button>
               )}
             </div>
           )}
         </div>
-        <div className="ring">
+        <div className="ring-center">
           <ProgressRing value={dailyDone} max={dailyTarget} />
           <div className="label">
             Daily Quota
@@ -294,16 +288,14 @@ export function ReviewClient({ data }: Props) {
               fontSize: 11,
               color: "var(--ink-3)",
               letterSpacing: ".08em",
-            }}
-          >
+            }}>
             <span
               style={{
                 fontFamily: "var(--serif-display)",
                 fontStyle: "italic",
                 fontSize: 22,
                 color: "var(--ink)",
-              }}
-            >
+              }}>
               {safeIdx + 1}
             </span>
             <span style={{ margin: "0 6px" }}>/</span>
@@ -349,27 +341,23 @@ export function ReviewClient({ data }: Props) {
             <div className="face-toggle">
               <button
                 className={"opt " + (face === "front" ? "active" : "")}
-                onClick={() => setFace("front")}
-              >
+                onClick={() => setFace("front")}>
                 Front
               </button>
               <button
                 className={"opt " + (face === "back" ? "active" : "")}
-                onClick={() => setFace("back")}
-              >
+                onClick={() => setFace("back")}>
                 Back
               </button>
               <button
                 className={"opt " + (face === "phrase" ? "active" : "")}
-                onClick={() => setFace("phrase")}
-              >
+                onClick={() => setFace("phrase")}>
                 Phrase
               </button>
               <button
                 className={"opt " + (face === "notes" ? "active" : "")}
                 onClick={() => setFace("notes")}
-                title="Etymology & synonyms (4)"
-              >
+                title="Etymology & synonyms (4)">
                 Notes
               </button>
             </div>
@@ -382,14 +370,12 @@ export function ReviewClient({ data }: Props) {
               </button>
               <button
                 className="m learning"
-                onClick={() => setMast("learning")}
-              >
+                onClick={() => setMast("learning")}>
                 Learning
               </button>
               <button
                 className="m mastered"
-                onClick={() => setMast("mastered")}
-              >
+                onClick={() => setMast("mastered")}>
                 Mastered
               </button>
             </div>
@@ -399,14 +385,12 @@ export function ReviewClient({ data }: Props) {
             <div className="func-toggle">
               <button
                 className={"opt " + (func === "study" ? "active" : "")}
-                onClick={() => setFunc("study")}
-              >
+                onClick={() => setFunc("study")}>
                 Study
               </button>
               <button
                 className={"opt " + (func === "test" ? "active" : "")}
-                onClick={() => setFunc("test")}
-              >
+                onClick={() => setFunc("test")}>
                 Test
               </button>
               <button className="opt" onClick={shuffle} title="Shuffle">
@@ -415,8 +399,7 @@ export function ReviewClient({ data }: Props) {
               <button
                 className="opt"
                 onClick={toggleReverse}
-                title="Reverse order"
-              >
+                title="Reverse order">
                 {Icon.reverse(11)}
               </button>
               <button className="opt" onClick={reset} title="Reset">

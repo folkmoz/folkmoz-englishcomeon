@@ -20,11 +20,20 @@ export interface SplitVariableResult {
   hasAudioPhrase: boolean;
 }
 
+export type TtsVoice =
+  | "Kore"
+  | "Puck"
+  | "Aoede"
+  | "Charon"
+  | "Leda"
+  | "Zephyr";
+
 export interface CommonplaceTweaks {
   theme: "parchment" | "ivory" | "dusk";
   displayFont: "cormorant" | "newsreader" | "eb";
   recordView: "grid" | "list" | "grouped";
   dailyQuota: number;
+  ttsVoice: TtsVoice;
 }
 
 export interface CommonplaceSession {

@@ -1,9 +1,16 @@
 "use server";
 import { randomUUID } from "node:crypto";
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { db } from "@/lib/db";
 import { isAuthed } from "@/lib/auth";
 import { CommonplacePos } from "@/types";
+
+function invalidateVocab() {
+  revalidateTag("vocab-data", "max");
+  revalidatePath("/");
+  revalidatePath("/vocab/review");
+  revalidatePath("/admin");
+}
 
 const KNOWN_POS: CommonplacePos[] = [
   "noun",
@@ -73,7 +80,7 @@ export async function createWord(input: WordInput) {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [id, n.front, n.back, n.pos, n.phrase, n.etymology, af ?? null, ap ?? null],
   });
-  revalidateTag("vocab-data", "max");
+  invalidateVocab();
   return { id };
 }
 
@@ -115,7 +122,7 @@ export async function updateWord(id: string, input: WordInput) {
     sql: `UPDATE vocab SET ${sets.join(", ")} WHERE id = ?`,
     args,
   });
-  revalidateTag("vocab-data", "max");
+  invalidateVocab();
 }
 
 export async function deleteWord(id: string) {
@@ -124,5 +131,5 @@ export async function deleteWord(id: string) {
     sql: "DELETE FROM vocab WHERE id = ?",
     args: [id],
   });
-  revalidateTag("vocab-data", "max");
+  invalidateVocab();
 }

@@ -12,6 +12,7 @@ const DEFAULT_TWEAKS: CommonplaceTweaks = {
   displayFont: "cormorant",
   recordView: "list",
   dailyQuota: 20,
+  ttsVoice: "Kore",
 };
 
 const FONT_MAP: Record<CommonplaceTweaks["displayFont"], string> = {
@@ -23,9 +24,14 @@ const FONT_MAP: Record<CommonplaceTweaks["displayFont"], string> = {
 interface ShellProps {
   children: ReactNode;
   totalEntries: number;
+  isAdmin?: boolean;
 }
 
-export function CommonplaceShell({ children, totalEntries }: ShellProps) {
+export function CommonplaceShell({
+  children,
+  totalEntries,
+  isAdmin = false,
+}: ShellProps) {
   const pathname = usePathname();
   const isReview = pathname?.startsWith("/vocab/review");
   const page: "record" | "review" = isReview ? "review" : "record";
@@ -75,6 +81,11 @@ export function CommonplaceShell({ children, totalEntries }: ShellProps) {
           >
             Review
           </Link>
+          {isAdmin && (
+            <Link href="/admin" className="nav-link nav-admin">
+              Admin
+            </Link>
+          )}
         </div>
         <div className="center">
           <h1>English Commonplace</h1>
@@ -109,6 +120,7 @@ export function CommonplaceShell({ children, totalEntries }: ShellProps) {
         setTweaks={setTweaks}
         visible={tweaksOpen}
         onClose={() => setTweaksOpen(false)}
+        isAdmin={isAdmin}
       />
     </div>
   );
