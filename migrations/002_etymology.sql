@@ -1,0 +1,1 @@
+ALTER TABLE vocab ADD COLUMN etymology TEXT;

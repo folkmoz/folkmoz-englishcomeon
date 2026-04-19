@@ -8,7 +8,7 @@ import {
 } from "@/types";
 import { Icon } from "./icons";
 import { useTweaks } from "./shell";
-import { speak, useStored } from "./use-stored";
+import { playAudio, speak, useStored } from "./use-stored";
 
 type RecordView = "grid" | "list" | "grouped";
 
@@ -212,7 +212,14 @@ function ListView({
               className="icon-btn"
               onClick={(e) => {
                 e.stopPropagation();
-                speak(w.front);
+                if (w.hasAudioFront) {
+                  playAudio(
+                    `/api/audio?id=${encodeURIComponent(w.id)}&kind=front`,
+                    w.front,
+                  );
+                } else {
+                  speak(w.front);
+                }
               }}
               title="Speak"
               aria-label="Speak"

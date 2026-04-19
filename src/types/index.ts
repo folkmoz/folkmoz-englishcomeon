@@ -14,7 +14,10 @@ export interface SplitVariableResult {
   front: string;
   back: string;
   phrase: string | null;
+  etymology: string | null;
   pos: CommonplacePos;
+  hasAudioFront: boolean;
+  hasAudioPhrase: boolean;
 }
 
 export interface CommonplaceTweaks {

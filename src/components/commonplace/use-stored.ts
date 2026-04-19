@@ -63,3 +63,17 @@ export function speak(text: string) {
     window.speechSynthesis.speak(u);
   } catch {}
 }
+
+let activeAudio: HTMLAudioElement | null = null;
+
+export function playAudio(url: string, fallbackText: string) {
+  if (typeof window === "undefined") return;
+  try {
+    activeAudio?.pause();
+    const audio = new Audio(url);
+    activeAudio = audio;
+    audio.play().catch(() => speak(fallbackText));
+  } catch {
+    speak(fallbackText);
+  }
+}

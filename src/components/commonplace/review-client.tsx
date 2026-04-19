@@ -11,8 +11,10 @@ import { ProgressRing } from "./progress-ring";
 import { useTweaks } from "./shell";
 import { todayKey, useStored } from "./use-stored";
 
-type FaceState = "front" | "back" | "phrase";
+type FaceState = "front" | "back" | "phrase" | "notes";
 type FuncMode = "study" | "test";
+
+const FACE_CYCLE: FaceState[] = ["front", "back", "phrase", "notes"];
 
 interface Props {
   data: SplitVariableResult[];
@@ -149,11 +151,15 @@ export function ReviewClient({ data }: Props) {
       if (e.key === "ArrowRight") next();
       if (e.key === " ") {
         e.preventDefault();
-        setFace((f) => (f === "front" ? "back" : f === "back" ? "phrase" : "front"));
+        setFace((f) => {
+          const i = FACE_CYCLE.indexOf(f);
+          return FACE_CYCLE[(i + 1) % FACE_CYCLE.length];
+        });
       }
       if (e.key === "1") setFace("front");
       if (e.key === "2") setFace("back");
       if (e.key === "3") setFace("phrase");
+      if (e.key === "4") setFace("notes");
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -331,7 +337,7 @@ export function ReviewClient({ data }: Props) {
             {Icon.arrowL()}
           </button>
           <span className="keyhint">
-            ← / → to navigate · space to flip
+            ← / → navigate · space cycles · 1 2 3 4
           </span>
           <button className="arrow" onClick={next} title="Next (→)">
             {Icon.arrowR()}
@@ -358,6 +364,13 @@ export function ReviewClient({ data }: Props) {
                 onClick={() => setFace("phrase")}
               >
                 Phrase
+              </button>
+              <button
+                className={"opt " + (face === "notes" ? "active" : "")}
+                onClick={() => setFace("notes")}
+                title="Etymology & synonyms (4)"
+              >
+                Notes
               </button>
             </div>
           </div>

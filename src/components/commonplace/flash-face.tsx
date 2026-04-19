@@ -2,9 +2,33 @@
 import { Fragment, useMemo } from "react";
 import { MasteryState, SplitVariableResult } from "@/types";
 import { Icon } from "./icons";
-import { speak } from "./use-stored";
+import { playAudio, speak } from "./use-stored";
 
-type FaceState = "front" | "back" | "phrase";
+const audioUrl = (id: string, kind: "front" | "phrase") =>
+  `/api/audio?id=${encodeURIComponent(id)}&kind=${kind}`;
+
+const playWordAudio = (word: { id: string; front: string; hasAudioFront: boolean }) => {
+  if (word.hasAudioFront) {
+    playAudio(audioUrl(word.id, "front"), word.front);
+  } else {
+    speak(word.front);
+  }
+};
+
+const playPhraseAudio = (word: {
+  id: string;
+  phrase: string | null;
+  hasAudioPhrase: boolean;
+}) => {
+  if (!word.phrase) return;
+  if (word.hasAudioPhrase) {
+    playAudio(audioUrl(word.id, "phrase"), word.phrase);
+  } else {
+    speak(word.phrase);
+  }
+};
+
+type FaceState = "front" | "back" | "phrase" | "notes";
 type FuncMode = "study" | "test";
 
 interface Props {
@@ -71,7 +95,7 @@ export function FlashFace({
           <div className="word">
             {promptWord}
             {testFront === "en" && (
-              <button className="audio" onClick={() => speak(word.front)}>
+              <button className="audio" onClick={() => playWordAudio(word)}>
                 {Icon.speaker(15)}
               </button>
             )}
@@ -105,6 +129,7 @@ export function FlashFace({
   const showFront = faceState === "front";
   const showBack = faceState === "back";
   const showPhrase = faceState === "phrase";
+  const showNotes = faceState === "notes";
 
   return (
     <div className="face">
@@ -112,6 +137,7 @@ export function FlashFace({
         {showFront && "English"}
         {showBack && "Thai · Translation"}
         {showPhrase && "In Use"}
+        {showNotes && "Notes · Etymology"}
       </span>
       <span className="corner-tr">
         {String(currentIdx + 1).padStart(3, "0")} / {total}
@@ -140,7 +166,7 @@ export function FlashFace({
           <>
             <div className="word">
               {word.front}
-              <button className="audio" onClick={() => speak(word.front)}>
+              <button className="audio" onClick={() => playWordAudio(word)}>
                 {Icon.speaker(16)}
               </button>
             </div>
@@ -194,11 +220,46 @@ export function FlashFace({
             {word.phrase && (
               <button
                 className="audio"
-                onClick={() => speak(word.phrase!)}
+                onClick={() => playPhraseAudio(word)}
                 style={{ marginTop: 28 }}
               >
                 {Icon.speaker(16)}
               </button>
+            )}
+          </>
+        )}
+        {showNotes && (
+          <>
+            {word.etymology ? (
+              <div className="notes-block">
+                {word.etymology.split("\n").map((line, i) => {
+                  const m = line.match(/^([A-Za-z /]+):\s*(.*)$/);
+                  if (m) {
+                    return (
+                      <div key={i} className="notes-line">
+                        <span className="notes-label">{m[1]}</span>
+                        <span className="notes-text">{m[2]}</span>
+                      </div>
+                    );
+                  }
+                  return line.trim() ? (
+                    <div key={i} className="notes-line">
+                      <span className="notes-text">{line}</span>
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            ) : (
+              <div
+                style={{
+                  fontFamily: "var(--serif-display)",
+                  fontStyle: "italic",
+                  fontSize: 22,
+                  color: "var(--ink-4)",
+                }}
+              >
+                “No notes yet — use the admin to generate etymology.”
+              </div>
             )}
           </>
         )}
