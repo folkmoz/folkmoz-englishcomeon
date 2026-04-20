@@ -16,6 +16,7 @@
     "@ai-sdk/google": "^3.0.64",
     "@libsql/client": "^0.17.2",
     "@tailwindcss/postcss": "^4.1.18",
+    "@vercel/speed-insights": "^2.0.0",
     "ai": "^6.0.168",
     "autoprefixer": "^10.4.24",
     "eslint": "^9.39.2",
