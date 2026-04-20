@@ -1,6 +1,6 @@
+import { unstable_cache } from "next/cache";
 import { db } from "@/lib/db";
 import { CommonplacePos, SplitVariableResult } from "@/types";
-import { unstable_cache } from "next/cache";
 
 const KNOWN_POS: CommonplacePos[] = [
   "noun",
@@ -42,11 +42,15 @@ async function queryAllVocab(): Promise<SplitVariableResult[]> {
   }
 }
 
+// unstable_cache with short TTL + tag-based invalidation. TTL matches the
+// route-level revalidate so any stale-empty state (e.g. from a build with
+// missing env) self-heals within 60s, while normal edits bust it instantly
+// via revalidateTag in the mutation actions.
 export const getAllVocab = unstable_cache(queryAllVocab, ["vocab-data"], {
-  revalidate: 3600,
+  revalidate: 60,
   tags: ["vocab-data"],
 });
 
-// Uncached direct query — used by /admin so edits are always reflected
-// without depending on cache invalidation timing.
+// Uncached direct query — used by /admin so edits always show immediately
+// without waiting on tag propagation.
 export const getAllVocabFresh = queryAllVocab;
