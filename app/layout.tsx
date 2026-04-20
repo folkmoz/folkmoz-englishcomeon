@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 interface RootLayoutProps {
@@ -25,7 +26,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           rel="stylesheet"
         />
       </head>
-      <body className="commonplace">{children}</body>
+      <body className="commonplace">
+        {children}
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
